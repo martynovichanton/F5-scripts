@@ -1,0 +1,181 @@
+https://10.10.10.1/mgmt/tm/asm/policies
+save to file
+import json
+with open("p.txt","r") as f:
+    d = json.load(f)
+
+for i in d['items']:
+    print(f"{i['id']} {i['fullPath']}")
+
+OR
+
+delete all \n strings from output
+import json
+d = """<output>"""
+for i in json.loads(d)['items']:
+    print(f"{i['id']} {i['fullPath']}")
+
+Example policy:
+146bf8177d2f729004b40d /Partition01/waf-test.code.com
+
+
+https://10.10.10.1/mgmt/tm/asm/policies/146bf8177d2f729004b40d/signatures
+save to file
+import json
+with open("p.txt","r") as f:
+    d = json.load(f)
+
+with open("p_parsed.txt","w") as f:
+    for i in d['items']:
+        #print(f"{json.dumps(i, indent=2)}")
+        print(f"{i['id']} {i['signatureReference']['signatureId']} {i['signatureReference']['name']}")
+        f.write(f"{i['id']} {i['signatureReference']['signatureId']} {i['signatureReference']['name']}\n")
+
+
+WAF generate commands
+policies = [
+    "146bf8177d2f729004b40d"
+]
+signatures = [
+    "ZsoeHDUQwqDvZHvRdT4UTw",
+    "vEBki4ySpTtZsiC2kvWFSA",
+    "g7WEZbclw71Esj_b92jnpQ"
+]
+with open("f5_waf_commands.txt","w") as f:
+    for p in policies:
+        for s in signatures:
+            command = f'patch---/mgmt/tm/asm/policies/{p}/signatures/{s}---{{"performStaging": true, "enabled": true}}'
+            print(command)
+            f.write(command + "\n")
+
+
+
+https://10.10.10.1/mgmt/tm/asm/policies/146bf8177d2f729004b40d/blocking-settings
+d = """<output>"""
+for i in json.loads(d)['items']:
+  print(f"{i['id']} {i['description']}")
+
+/evasions
+idhash Directory traversals
+idhash Multiple decoding
+idhash %u decoding
+idhash IIS backslashes
+idhash IIS Unicode codepoints
+idhash Bare byte decoding
+idhash Apache whitespace
+idhash Bad unescape
+
+/http-protocols
+idhash POST request with Content-Length: 0
+idhash Header name with no header value
+idhash Several Content-Length headers
+idhash Chunked request with Content-Length header
+idhash Body in GET or HEAD requests
+idhash Bad multipart/form-data request parsing
+idhash Bad multipart parameters parsing
+idhash No Host header in HTTP/1.1 request
+idhash CRLF characters before request start
+idhash Host header contains IP address
+idhash Content length should be a positive number
+idhash Bad HTTP version
+idhash Null in request
+idhash High ASCII characters in headers
+idhash Unparsable request content
+idhash Check maximum number of headers
+idhash Bad host header value
+idhash Check maximum number of parameters
+idhash Multiple host headers
+
+/violations
+idhash Malformed XML data
+idhash Login URL bypassed
+idhash Plain text data does not comply with format settings
+idhash Binary content found in text only WebSocket
+idhash Illegal meta character in value
+idhash Illegal cookie length
+idhash Brute Force: Maximum login attempts are exceeded
+idhash GWT data does not comply with format settings
+idhash HTTP protocol compliance failed
+idhash Web scraping detected
+idhash Illegal repeated parameter name
+idhash Illegal flow to URL
+idhash Illegal WebSocket extension
+idhash Mask not found in client frame
+idhash Illegal attachment in SOAP message
+idhash Access from disallowed User/Session/IP/Device ID
+idhash CSRF authentication expired
+idhash Illegal method
+idhash SOAP method not allowed
+idhash Null character found in WebSocket text message
+idhash Bad WebSocket handshake request
+idhash Modified ASM cookie
+idhash XML data does not comply with schema or WSDL document
+idhash Illegal parameter numeric value
+idhash Illegal parameter
+idhash Illegal URL
+idhash Illegal empty parameter value
+idhash Malformed GWT data
+idhash Illegal Base64 value
+idhash Illegal session ID in URL
+idhash Illegal request content type
+idhash ASM Cookie Hijacking
+idhash Failure in WebSocket framing protocol
+idhash Malformed JSON data
+idhash XML data does not comply with format settings
+idhash Illegal meta character in URL
+idhash Disallowed file upload content detected
+idhash Illegal WebSocket frame length
+idhash Access from disallowed Geolocation
+idhash Illegal WebSocket binary message length
+idhash Illegal entry point
+idhash IP is blacklisted
+idhash Illegal file type
+idhash Illegal query string length
+idhash Parameter value does not comply with regular expression
+idhash Illegal meta character in header
+idhash Illegal number of frames per message
+idhash Data Guard: Information leakage detected
+idhash Illegal static parameter value
+idhash JSON data does not comply with format settings
+idhash Illegal number of mandatory parameters
+idhash Illegal cross-origin request
+idhash Evasion technique detected
+idhash Cookie not RFC-compliant
+idhash Illegal dynamic parameter value
+idhash Illegal meta character in parameter name
+idhash Login URL expired
+idhash Illegal redirection attempt
+idhash Virus detected
+idhash Illegal POST data length
+idhash Illegal HTTP status in response
+idhash Text content found in binary only WebSocket
+idhash Failed to convert character
+idhash Illegal header length
+idhash Mandatory HTTP header is missing
+idhash Null in multi-part parameter value
+idhash Illegal parameter value length
+idhash Access from malicious IP address
+idhash Illegal parameter data type
+idhash CSRF attack detected
+idhash Attack signature detected
+idhash Request length exceeds defined buffer size
+idhash Web Services Security failure
+idhash Illegal query string or POST data
+idhash Illegal URL length
+idhash Modified domain cookie(s)
+idhash Expired timestamp
+idhash Illegal request length
+
+
+
+change property
+PATCH https://10.10.10.1/mgmt/tm/asm/policies/146bf8177d2f729004b40d/blocking-settings/http-protocols/idhash
+body {"enabled": true, "learn": true}
+
+protocols
+patch---/mgmt/tm/asm/policies/146bf8177d2f729004b40d/blocking-settings/http-protocols/idhash---{"enabled": false, "learn": false}
+
+whitelist
+post---/mgmt/tm/asm/policies/146bf8177d2f729004b40d/whitelist-ips---{"ignoreIpReputation": true, "blockRequests": "never", "ignoreAnomalies": true, "neverLogRequests": false, "ipAddress": "10.0.0.0%1", "description": "Private 10.0.0.0", "kind": "tm:asm:policies:whitelist-ips:whitelist-ipstate", "neverLearnRequests": true, "ipMask": "255.0.0.0", "trustedByPolicyBuilder": false}
+post---/mgmt/tm/asm/policies/146bf8177d2f729004b40d/whitelist-ips---{"ignoreIpReputation": true, "blockRequests": "never", "ignoreAnomalies": true, "neverLogRequests": false, "ipAddress": "172.16.0.0%1", "description": "Private 172.16.0.0", "kind": "tm:asm:policies:whitelist-ips:whitelist-ipstate", "neverLearnRequests": true, "ipMask": "255.240.0.0", "trustedByPolicyBuilder": false}
+post---/mgmt/tm/asm/policies/146bf8177d2f729004b40d/whitelist-ips---{"ignoreIpReputation": true, "blockRequests": "never", "ignoreAnomalies": true, "neverLogRequests": false, "ipAddress": "192.168.0.0%1", "description": "Private 192.168.0.0", "kind": "tm:asm:policies:whitelist-ips:whitelist-ipstate", "neverLearnRequests": true, "ipMask": "255.255.0.0", "trustedByPolicyBuilder": false}

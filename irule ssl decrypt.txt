@@ -1,0 +1,27 @@
+when CLIENTSSL_HANDSHAKE {
+  if {[IP::addr [IP::client_addr] equals "10.10.10.1%1"] } {
+    log local5. "[TCP::client_port] :: RSA Session-ID:[SSL::sessionid] Master-Key:[SSL::sessionsecret]"
+  }
+}
+when SERVERSSL_HANDSHAKE {
+  if {[IP::addr [IP::server_addr] equals "10.10.11.1%1"] or [IP::addr [IP::server_addr] equals "10.10.11.2%1"]} {
+    log local5. "[TCP::client_port] :: RSA Session-ID:[SSL::sessionid] Master-Key:[SSL::sessionsecret]"
+  }
+}
+
+
+or with data groups:
+
+when CLIENTSSL_HANDSHAKE {
+  if {[class match [IP::client_addr] equals ip_decrypt_client]} {
+    log local5. "[TCP::client_port] :: RSA Session-ID:[SSL::sessionid] Master-Key:[SSL::sessionsecret]"
+  }
+}
+when SERVERSSL_HANDSHAKE {
+  if {[class match [IP::server_addr] equals ip_decrypt_server]} {
+    log local5. "[TCP::server_port] :: RSA Session-ID:[SSL::sessionid] Master-Key:[SSL::sessionsecret]"
+  }
+}
+
+
+sed -e 's/^.*\(RSA Session-ID\)/\1/;tx;d;:x' /var/log/pktfilter > /var/tmp/sessionsecrets.pms

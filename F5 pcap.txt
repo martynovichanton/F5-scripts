@@ -1,0 +1,14 @@
+1. FW policy auto asic offload disable - FW policy id XXX - set auto-asic-offload disable
+2. F5 attach irule to frontend and backend vips
+3. Run sniffers on FW and on F5
+
+
+FW
+Packet capture on 2 interfaces - uplink filtered with public IP and LB interconnect filtered with F5 VIP IP
+
+F5
+tcpdump -i 0.0:nnnp "host 10.10.10.1 or host 1.1.1.1" -w /var/tmp/sniffer.pcap -W 2 -C 1000
+
+sed -e 's/^.*\(RSA Session-ID\)/\1/;tx;d;:x' /var/log/pktfilter > sessionsecrets.pms
+
+
